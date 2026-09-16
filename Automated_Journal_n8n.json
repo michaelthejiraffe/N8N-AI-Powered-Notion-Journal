@@ -1,0 +1,1146 @@
+{
+  "name": "public_Journal",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 23
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -3392,
+        -160
+      ],
+      "id": "02ffd7d7-0930-4efd-9a3a-986dca09e316",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=please analyse the events below\n{{ $json.value }}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -2416,
+        -112
+      ],
+      "id": "e47c935b-5f25-4a8f-81a3-4f1a8ba0c70a",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -2560,
+        128
+      ],
+      "id": "6503ce2b-03bb-4336-955c-fbee69c4485f",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "YOUR_GOOGLE_CREDENTIAL_ID",
+          "name": "Google account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "AI Agent that analyzes the events that i have done in a day.\n\nObjectives\n1. Document the activities, events in a day. Try to note down the duration of each activity, and whether i am engaging in positive, productive habits\n2. Provide insights, learnings and experiences in the day\n3. Create recommendations on how best to use my time in a day.\n\n\n\nRules that must be enforced\n1. Ensure that any explanation of events is structured chronologically to minimize confusion\n2. Ensure that there are clear visible divisions between ideas \n3. Please provide comparative ideas to examples\n4. For the title json object, do not be too formal, avoid using big buzz words like \"Analysis, optimisation, tedious\", make it more cheery and positive!\n",
+        "text": "Your role is to analyse the events in a day and to make a judgement on whether I have been using my day productively.\n\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        -2432,
+        128
+      ],
+      "id": "2677e9dd-7568-439d-b637-f271edbdd1dd",
+      "name": "AI Agent Tool"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -2352,
+        336
+      ],
+      "id": "28e9a997-44ff-4484-9acc-91127763ee4a",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "YOUR_GOOGLE_CREDENTIAL_ID",
+          "name": "Google account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n    \"Title\" : \"Enter a catchy title that summarises the mood and events of the day!\",\n\t\"EventList\": \"Event Name\",\n\t\"Insights\": \"Here are the insights based on todays events\",\n  \"Improvements\": \"Here are the improvements for today\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -2144,
+        128
+      ],
+      "id": "574035f2-ad52-4037-a7ab-159277196a4a",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "dataSourceId": {
+          "__rl": true,
+          "value": "3d30667c-431c-808e-8bec-000bd349ddbd",
+          "mode": "list",
+          "cachedResultName": "Automated Journal (test)",
+          "cachedResultUrl": "https://app.notion.com/p/3d30667c431c80d58e92d030acba24d3"
+        },
+        "title": "={{ $today.day + 1}}/{{ $today.month }}/{{ $today.year }} {{ $json.output.Title }}",
+        "blockUi": {
+          "blockValues": [
+            {
+              "type": "heading_3",
+              "textContent": "Flow of the Day"
+            },
+            {
+              "textContent": "={{ $json.output.EventList }}"
+            },
+            {
+              "type": "heading_3",
+              "textContent": "Insights"
+            },
+            {
+              "textContent": "={{ $json.output.Insights }}"
+            },
+            {
+              "type": "heading_3",
+              "textContent": "Improvements and Recommendations"
+            },
+            {
+              "textContent": "={{ $json.output.Improvements }}"
+            },
+            {
+              "type": "heading_3",
+              "textContent": "Expenditure"
+            },
+            {
+              "textContent": "={{ $json.expenditure }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 3,
+      "position": [
+        -1680,
+        -176
+      ],
+      "id": "4ee95355-0497-4b7e-b1c8-3f2be6db43ba",
+      "name": "Create a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "API account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        -3392,
+        912
+      ],
+      "id": "8cc056b3-3be0-4671-af3b-4a5525f86dd3",
+      "name": "Telegram Trigger",
+      "webhookId": "ff98d818-9c40-43fd-8b8c-eb932885931e",
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "API account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Please read the chat message provided.\n\"{{ $json.message.text }}\"\n\nYou are to decide between three options based on the context of the message. 1. Journal Entry, 2. Expenditure Record, and 3. \"\" empty string for values that do not fit\n\nYou are only to output these three strings based on your analysis: \"Journal Entry\", \"Expenditure Record\" and \"Income Record\". If the inputted data does not resemble anything that remotely fits into these categories, return an empty string\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -3168,
+        720
+      ],
+      "id": "4392a239-c116-4c02-a321-a7572966ebc4",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -3168,
+        1136
+      ],
+      "id": "01a14a1f-be77-4390-9602-cbea66a5a67e",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "YOUR_GOOGLE_CREDENTIAL_ID",
+          "name": "Google account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Main Logic (Telegram Entrypoint)\n\n",
+        "height": 624,
+        "width": 896
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -3504,
+        656
+      ],
+      "id": "a560515e-c045-49c0-a697-d4b11509a6bc",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"category\"  : \"Expenditure Record\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -2944,
+        1136
+      ],
+      "id": "275f8a59-a2b2-4767-91d7-c010cf1cc67d",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output.category }}",
+                    "rightValue": "Expenditure Record",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "262441e4-183c-448f-93a8-144c0b804d11"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "b0c201c7-f6d0-4184-9860-dc46cc680b89",
+                    "leftValue": "={{ $json.output.category }}",
+                    "rightValue": "Journal Entry",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -2816,
+        912
+      ],
+      "id": "4811519b-4c7f-4f03-b433-e3194240486a",
+      "name": "Switch",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "mode": "combineBySql",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -2560,
+        720
+      ],
+      "id": "54935126-34cc-4427-a4bf-f90f96edd20c",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "mode": "combineBySql",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -2576,
+        1168
+      ],
+      "id": "6ca48535-c8e9-45aa-961e-f9ea4a5e7294",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each \nif($input.first().json.output.category === \"Expenditure Record\"){\n  var value = $input.first().json.message.text.split(\" \");\n  console.log(value)\n  const item  = value.slice(0,-1).join(\" \");\n  var price = value.splice(-1).join(\" \");\n  return {item: item, \n          price : price}\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2368,
+        704
+      ],
+      "id": "007b38fb-d928-43d7-804c-859b3d49ebee",
+      "name": "Code in JavaScript1",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nif ($('Switch').first().json.output.category === \"Journal Entry\"){\n  const splitUp = $input.first().json.message.text.split(\" \");\n  const timing  = splitUp[0];\n  const record = splitUp.slice(1).join(\" \");\n    \n  return { timing: timing, record : record }\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2368,
+        1104
+      ],
+      "id": "e260bbec-0ed1-4c3d-85fe-efcf3e7d3616",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "mode": "combineBySql",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -1920,
+        -192
+      ],
+      "id": "3e2cf8d8-82de-477b-ae0e-df3517210e1a",
+      "name": "Merge2"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "aM6ue7lGzTJmVSUJ",
+          "mode": "list",
+          "cachedResultName": "data table 1",
+          "cachedResultUrl": "/projects/QyyH2JPr4o2Vsh62/datatables/aM6ue7lGzTJmVSUJ"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "date",
+              "keyValue": "={{ $today.day }}/{{ $today.month }}/{{ $today.year }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        -2800,
+        -336
+      ],
+      "id": "14aa68e2-15c5-45c3-b67e-9df219619721",
+      "name": "Get row(s)"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "yVclAbdNWE8FUzKa",
+          "mode": "list",
+          "cachedResultName": "data table Journal",
+          "cachedResultUrl": "/projects/QyyH2JPr4o2Vsh62/datatables/yVclAbdNWE8FUzKa"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "date",
+              "keyValue": "={{ $today.day }}/{{ $today.month }}/{{ $today.year }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        -3040,
+        64
+      ],
+      "id": "3e8ffbf3-43dd-47c1-9296-deb8ae3890eb",
+      "name": "Get row(s)1"
+    },
+    {
+      "parameters": {
+        "content": "For Expenditure Accounting\n",
+        "height": 256,
+        "width": 480,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2848,
+        -416
+      ],
+      "id": "0573346e-f16c-46aa-a1d9-31f0853a0456",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Summarise this event into a short title that spans only a few words. The event is as follows:  {{ $json.record }}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -2080,
+        1328
+      ],
+      "id": "b02a21d8-ee44-41ac-b86d-cfffbdcfa0e7",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -2224,
+        1536
+      ],
+      "id": "1ab4a599-e30e-4753-ba32-a838c467b638",
+      "name": "Google Gemini Chat Model3",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "YOUR_GOOGLE_CREDENTIAL_ID",
+          "name": "Google account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combineBySql",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -1856,
+        1104
+      ],
+      "id": "8d16d9df-ab8e-43b4-b02a-83956b2303f9",
+      "name": "Merge3"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nvar message = \"\";\nvar totalSum = 0;\nfor (const item of $input.all()) {\n  message = message + `Item: ${item.json.Expenditure_Name} | Price: $${item.json.Cost}\\n`;\n  totalSum += Number(item.json.Cost);\n}\nmessage = message + `\\nTotal Sum: $${totalSum}`\nconst value = {expenditure: message}\nreturn value"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2576,
+        -336
+      ],
+      "id": "d51dbd51-52ff-48e9-9aff-c7113fef43cb",
+      "name": "Formatting Expenditure"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nvar message = \"\";\n\nfor (const item of $input.all()) {\n  message = message + \"Start Timing \" +item.json.Timing + \" - \" + item.json['End Timing'] + \" Duration: \" + item.json.Duration +\"\\n\" +item.json.Event\n}\n\nconst output = {value: message}\n\nreturn output"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2784,
+        96
+      ],
+      "id": "10ac2145-9aa0-4e21-ae02-d1492648e354",
+      "name": "Formatting the Events and Activities"
+    },
+    {
+      "parameters": {
+        "content": "Insert Expense\n",
+        "height": 352,
+        "width": 896,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2592,
+        656
+      ],
+      "id": "3b42700a-b0e1-4ec4-a9e0-86342273c215",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "aM6ue7lGzTJmVSUJ",
+          "mode": "list",
+          "cachedResultName": "data table 1",
+          "cachedResultUrl": "/projects/QyyH2JPr4o2Vsh62/datatables/aM6ue7lGzTJmVSUJ"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Cost": "={{ $json.price }}",
+            "date": "={{ $today.day }}/{{ $today.month }}/{{ $today.year }}",
+            "Expenditure_Name": "={{ $json.item }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Expenditure_Name",
+              "displayName": "Expenditure_Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Cost",
+              "displayName": "Cost",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        -2144,
+        704
+      ],
+      "id": "949af12b-9aba-4cbc-a8cc-adb3356c9993",
+      "name": "insert Expense"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "yVclAbdNWE8FUzKa",
+          "mode": "list",
+          "cachedResultName": "data table Journal",
+          "cachedResultUrl": "/projects/QyyH2JPr4o2Vsh62/datatables/yVclAbdNWE8FUzKa"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timing": "={{ $json.timing }}",
+            "journal_entry": "={{ $json.record }}",
+            "date": "={{ $today.day }}/{{ $today.month }}/{{ $today.year }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "journal_entry",
+              "displayName": "journal_entry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "timing",
+              "displayName": "timing",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        -2144,
+        1104
+      ],
+      "id": "9e22bffd-a76e-46ba-9f82-013caed5bec8",
+      "name": "Insert Record"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.from.id }}",
+        "text": "=You have successfully recorded your purchase :  {{ $json.Expenditure_Name }} | Cost: {{ $json.Cost }} at {{ $today }}!",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1920,
+        704
+      ],
+      "id": "4573eeaa-686f-4596-94ba-cbf721cf16f6",
+      "name": "Send Confirmation",
+      "webhookId": "bc181a2f-b0d0-4083-81e5-021ea7d4f637",
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "API account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.from.id }}",
+        "text": "=You have successfully recorded: {{ $json.output }} at {{ $today }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1680,
+        1104
+      ],
+      "id": "2a283d16-191d-4318-979f-8374948dba0c",
+      "name": "Send Confirmation1",
+      "webhookId": "bc181a2f-b0d0-4083-81e5-021ea7d4f637",
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "API account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Insert Record\n",
+        "height": 640,
+        "width": 1152,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2592,
+        1040
+      ],
+      "id": "410fed88-a458-486a-b3d1-ec1457618ca7",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"title\": \"A focused study session and a break too!\"\n\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -1920,
+        1504
+      ],
+      "id": "7dfc1a84-95e5-4844-b0d0-bce89ec6be78",
+      "name": "Structured Output Parser2"
+    },
+    {
+      "parameters": {
+        "content": "**Setting Up**\n\nThe whole workflow splits into 2 parts, one for inputting the data directly into 2 separate n8n data tables and the other part runs on a scheduled timer that creates a database page in the notion\n \nHow to setup Notion Unit:\n1. Create two data tables in N8N, one will be used for recording purchases (Create 3 Headers in the table schema: Cost, Expenditure_name and date). The other table is used for recording events and activities (Create 3 Headers: Journal_entry, timing and date)\n\n2. Create a Notion Database page\n \n3. Setting up the Notion Credentials. Login to the notion developer  portal, go into connections from the notion developer tools page. Request for the  API (IMPT: Make sure you add the page the database is stored in under the API's content access)\n\n4. Configure the create N8N Database node to \"create\", \"Database Page\", select the database page that you have given N8N access to\n\n5. Setup the Gemini Credentials with the API key that can be generated from Google AI studio, choose whichever model works best for your use (Other AI providers can be used by switching the AI agent host node)\n\n6. Configure the schedule trigger to occur at any specific timing (IMPT: Configure your N8N instance to match the local region .e.g New York/America\n\nHow to Setup Telegram and Data Entry unit\n\n1. Create a new telegram bot from Botfather, copy and paste the bot token into the telegram credentials then verify \n\n2. Configure the AI models if has not been done previously\n",
+        "height": 736,
+        "width": 784
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -4416,
+        -448
+      ],
+      "id": "03cc0013-c45f-45a1-b5a6-ac80e6d0e2fe",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "For Journal",
+        "height": 592,
+        "width": 1120,
+        "color": "#296F16"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -3104,
+        -128
+      ],
+      "id": "f0cacc3a-b031-4ee7-a9a5-be1f8e1f1961",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## Notion Unit\n",
+        "height": 960,
+        "width": 2000,
+        "color": "#596AB1"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -3440,
+        -448
+      ],
+      "id": "ce4a5a50-70b6-4ce4-b2cf-b87db307c87b",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "## For Telegram + N8N data tables\n",
+        "height": 1104,
+        "width": 2176,
+        "color": "#D93636"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -3552,
+        576
+      ],
+      "id": "e5c9b102-89ee-4a88-8cc2-f251604881b7",
+      "name": "Sticky Note7"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get row(s)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Tool",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "insert Expense",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Insert Record",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a database page": {
+      "main": [
+        []
+      ]
+    },
+    "Get row(s)1": {
+      "main": [
+        [
+          {
+            "node": "Formatting the Events and Activities",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s)": {
+      "main": [
+        [
+          {
+            "node": "Formatting Expenditure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Create a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge3": {
+      "main": [
+        [
+          {
+            "node": "Send Confirmation1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatting Expenditure": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatting the Events and Activities": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "insert Expense": {
+      "main": [
+        [
+          {
+            "node": "Send Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Record": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser2": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "88d47dbf-d6e4-45ff-8ea7-4f2340ce2c35",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "00f3e1a45c5b5685a4824f1a3edbafe460ef0cdf77b561a9c1e977708ef23774"
+  },
+  "nodeGroups": [],
+  "id": "PzrM2ljg7KXKuF94",
+  "tags": []
+}
