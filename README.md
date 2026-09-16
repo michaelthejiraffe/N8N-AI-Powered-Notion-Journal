@@ -4,7 +4,11 @@
 
 An **n8n-based personal productivity and journaling automation** that allows you to record daily activities and expenses through Telegram, automatically categorises the information using Google Gemini, stores the structured data in n8n Data Tables, and generates an AI-powered daily journal in Notion.
 
-The goal of this workflow is to make personal time tracking and journaling almost frictionless: instead of manually maintaining a journal or expense spreadsheet, you simply send a message to Telegram.
+The goal of this workflow is to make personal time tracking and journaling almost frictionless: instead of manually maintaining a journal or expense spreadsheet, you simply send a message to Telegram. 
+
+## How to Start?
+
+Simply import the JSON file into an N8N instance (commercial/local self-hosted), **follow the sticky notes at the side to configure the necessary credentials and data tables necessary**.
 
 ---
 
@@ -26,6 +30,8 @@ The goal of this workflow is to make personal time tracking and journaling almos
   - A new Notion database page is created containing the day's activities, insights, improvements, and expenditure.
 - ✅ **Telegram confirmations**
   - The user receives confirmation after successfully recording an expense or journal entry.
+- 🔏 **Data Privacy**
+  - Data privacy can be achieved by storing data in N8N native data tables on a locally hosted instance of N8N running on a docker container 
 
 ---
 
@@ -100,17 +106,18 @@ The classifier determines whether the message represents:
 
 1. `Journal Entry`
 2. `Expenditure Record`
-3. `Income Record`
-4. An empty value if the message does not fit the expected categories
+3. An empty value if the message does not fit the expected categories
 
 The classifier is instructed to return one of these categories based on the content of the Telegram message. fileciteturn0file0L189-L201
 
-### Example
+(Note: Due to the structure of the JS code nodes in the workflow, there are some formatting idiosyncrasies that must be abided by)
 
-A message such as:
+### Example of formatting
+
+
 
 ```text
-10:30 Studied Python for two hours
+1030 Studied Python for two hours // Ensure that all timings are in 24 hour format and that they are placed in front of your activity
 ```
 
 can be interpreted as a:
@@ -122,7 +129,7 @@ Journal Entry
 Whereas:
 
 ```text
-Lunch 8.50
+Lunch 8.50 // For expenditure records, the cost of the item is placed as a int or float behind the item name
 ```
 
 can be interpreted as:
@@ -164,13 +171,13 @@ The current implementation expects the first word of the message to represent th
 For example:
 
 ```text
-14:30 Worked on my website
+1430 Worked on my website
 ```
 
 is transformed into:
 
 ```text
-timing: 14:30
+timing: 1430
 record: Worked on my website
 ```
 
@@ -500,7 +507,7 @@ You can then interact with the system through Telegram.
 Send:
 
 ```text
-09:00 Went to the gym
+0900 Went to the gym
 ```
 
 The workflow classifies this as a journal entry and stores the activity.
@@ -510,7 +517,7 @@ The workflow classifies this as a journal entry and stores the activity.
 ## Record another activity
 
 ```text
-11:30 Worked on my programming project
+1130 Worked on my programming project
 ```
 
 The entry is stored with its timing and description.
@@ -541,10 +548,10 @@ At 23:00, the workflow automatically gathers the day's information.
 For example:
 
 ```text
-09:00 Went to the gym
-11:30 Worked on my programming project
-14:00 Studied
-18:00 Met friends
+0900 Went to the gym
+1130 Worked on my programming project
+1400 Studied
+1800 Met friends
 ```
 
 along with:
@@ -629,13 +636,13 @@ Journal entries currently assume that the first space-separated portion of the m
 For example:
 
 ```text
-14:30 Worked on my website
+1430 Worked on my website
 ```
 
 becomes:
 
 ```text
-timing = 14:30
+timing = 1400
 record = Worked on my website
 ```
 
